@@ -1,1 +1,1 @@
-# mip2016-someklone-server
+# MIP, course server code.
