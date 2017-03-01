@@ -1,7 +1,11 @@
 var express = require('express');
 var cors = require('cors');
+var crypto = require('crypto');
 var bodyParser = require('body-parser');
+var MongoClient = require('mongodb').MongoClient
+  , assert = require('assert');
 var app = express();
+
 
 // You can store key-value pairs in express, here we store the port setting
 app.set('port', (process.env.PORT || 80));
@@ -10,10 +14,26 @@ app.set('port', (process.env.PORT || 80));
 app.use(bodyParser.json());
 app.use(cors());
 
+// Setting the mongodb url
+//var mongoUrl = 'mongodb:';
+
 // Simple hello world route
 app.get('/', function(req, res) {
    res.send("Hello world");
 });
+
+//* dummy users, these will be put into a database later on.
+var users = [{
+      id: "1",
+      username: "user1",
+      password: "pass1"
+   },
+   {
+      id: "2",
+      username: "user2",
+      password: "pass2"
+}];
+//*/
 
 var posts = [
    {
@@ -56,6 +76,21 @@ var posts = [
 app.get('/posts/relevant', function(req, res) {
    res.json(posts);
 });
+
+app.post('/login', function(req,res) {
+   console.log("User loggin in with following username:");
+   console.log("Username: " + req.body.username);
+   var u = users.find(function(element){
+      return (element.username === req.body.username) && (element.password === req.body.password);        
+   });
+
+   if(u !== undefined) {
+      return res.json({id: u.id, username: u.username});
+   }
+   else {
+        return res.sendStatus(401);
+    }
+})
 
 app.get('/posts/:id', function(req, res) {
    res.json(posts[req.params.id]);
